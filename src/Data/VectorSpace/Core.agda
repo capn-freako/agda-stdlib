@@ -17,7 +17,7 @@ open import Algebra        using (CommutativeRing)
 open import Algebra.Module using (Module)
 open import Algebra.Module.Construct.TensorUnit using (⟨module⟩)
 open import Algebra.Module.Morphism.Bundles
-open import Data.List      using (List; foldr)
+open import Data.List
 open import Data.Product
 open import Function
 open import Level          using (Level; _⊔_; suc)
@@ -79,16 +79,25 @@ record VectorSpace
     f y *ₗ y   ≡⟨⟩
     vscale f y ∎
 
-  ------------------------------------------------------------------------
   -- Linear maps from vectors to scalars.
   V⊸S = LinearMap mod ⟨module⟩
   
   -- Equivalent vector generator.
-  v : V⊸S → V
-  v lm = vgen (LinearMap.f lm) basisSet
+  lmToVec : V⊸S → V
+  lmToVec lm = vgen (LinearMap.f lm) basisSet
+
+  -- Linear maps from vectors to vectors.
+  -- V⊸V = LinearMap mod mod
+  V⊸V = List V⊸S
+  -- ToDo: How to generate `List V⊸S` from `LinearMap mod mod`?
+  
+  -- Equivalent matrix generator.
+  lmToMat : V⊸V → List V
+  lmToMat []         = []
+  lmToMat (lm ∷ lms) = lmToVec lm ∷ lmToMat lms
 
   open Setoid (≈ᴸ-setoid mod ⟨module⟩) using () renaming
-    ( _≈_ to _≈ᴸ_
-    ; _≉_ to _≉ᴸ_
+    ( _≈_ to _≈ˢ_
+    ; _≉_ to _≉ˢ_
     ) public
   
