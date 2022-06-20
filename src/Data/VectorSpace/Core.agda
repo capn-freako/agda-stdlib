@@ -91,29 +91,27 @@ record VectorSpace
   lmToVec : V⊸S → V
   lmToVec lm = vgen (LinearMap.f lm) basisSet
 
+  -- ToDo: equivalent matrix generator? How to even define the type?
+  -- lmToMat : V⊸V → ?
+  -- Maybe change type of `V⊸V` to:
   -- V⊸V = List V⊸S
-  -- ToDo: How to generate `List V⊸S` from `LinearMap mod mod`?
-  -- T(x) = y; express `x` in terms of basisSet and make use of linearity.
-  -- (May require transposition.)
-  --
-  -- f : V → V; f linear.
-  -- f v                                                           =⟨ basisComplete ⟩
-  -- f (vgen (v ∙_) basisSet)                                      =⟨ vgen ⟩
-  -- f (foldr (_+ᴹ_ ∘ vscale (v ∙_)) 0ᴹ basisSet)                  =⟨ vscale ⟩
-  -- f (foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ basisSet) =⟨ ? ⟩
-  -- foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ (map f basisSet) =⟨ ? ⟩
-  -- vgen (v ∙_) (map f basisSet)                                      =⟨ vgen ⟩
-  
-  -- vscale f = uncurry _*ₗ_ ∘ < f , id >
-
-  -- vgen : (V → S) → List V → V
-  -- vgen f = foldr (_+ᴹ_ ∘ vscale f) 0ᴹ
-  
-  -- Equivalent matrix generator.
+  -- And then:
+  -- -- Equivalent matrix generator.
   -- lmToMat : V⊸V → List V
   -- lmToMat []         = []
   -- lmToMat (lm ∷ lms) = lmToVec lm ∷ lmToMat lms
 
+  -- ToDo: How to generate `List V⊸S` from `LinearMap mod mod`?
+  -- T(x) = y; express `x` in terms of basisSet and make use of linearity.
+  -- (May require transposition.)
+  -- f : V → V; f linear.
+  -- f v                                                               =⟨ basisComplete ⟩
+  -- f (vgen (v ∙_) basisSet)                                          =⟨ vgen ⟩
+  -- f (foldr (_+ᴹ_ ∘ vscale (v ∙_)) 0ᴹ basisSet)                      =⟨ vscale ⟩
+  -- f (foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ basisSet)     =⟨ ? ⟩
+  -- foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ (map f basisSet) =⟨ ? ⟩
+  -- vgen (v ∙_) (map f basisSet)                                      =⟨ vgen ⟩
+  
   open Setoid (≈ᴸ-setoid mod ⟨module⟩) using () renaming
     ( _≈_ to _≈ˢ_
     ; _≉_ to _≉ˢ_
