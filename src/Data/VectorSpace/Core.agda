@@ -1,10 +1,7 @@
 ------------------------------------------------------------------------
 -- The Agda standard library
 --
--- Abstract vector spaces.
---
--- A "vector space" is a Module with a commutative, homomorphic inner
--- product and a complete set of building blocks for mapping the space.
+-- Vector spaces.
 ------------------------------------------------------------------------
 
 {-# OPTIONS --without-K --safe #-}
@@ -17,7 +14,9 @@ open import Algebra        using (CommutativeRing)
 open import Algebra.Module using (Module)
 open import Algebra.Module.Construct.TensorUnit using (⟨module⟩)
 open import Algebra.Module.Morphism.Bundles
+open import Data.Fin       using (Fin)
 open import Data.List
+open import Data.Nat       using (ℕ)
 open import Data.Product
 open import Function
 open import Level          using (Level; _⊔_; suc)
@@ -32,12 +31,17 @@ private
     B : Set b
     C : Set c
 
+------------------------------------------------------------------------
+-- Abstract vector space.
+--
+-- A "vector space" is a `Module` with a commutative, homomorphic inner
+-- product and a complete set of building blocks for mapping the space.
 record VectorSpace
   {r ℓr m ℓm : Level}
   {ring      : CommutativeRing r ℓr}
   (mod       : Module ring m ℓm)
   : Set (suc (ℓr ⊔ r ⊔ ℓm ⊔ m)) where
-
+  
   constructor mkVS
 
   open CommutativeRing ring renaming (Carrier  to S)   public
@@ -53,6 +57,7 @@ record VectorSpace
   infix 7 _∙_
   field
     _∙_           : V → V → S
+    -- ToDo: `List` => `Foldable Functor`.
     basisSet      : List V
     basisComplete : ∀ {a : V} →
                     a ≈ᴹ vgen (a ∙_) basisSet
@@ -79,25 +84,55 @@ record VectorSpace
     f y *ₗ y   ≡⟨⟩
     vscale f y ∎
 
-  -- Linear maps from vectors to scalars.
-  V⊸S = LinearMap mod ⟨module⟩
+  V⊸S = LinearMap mod ⟨module⟩ -- Linear maps from vectors to scalars.
+  V⊸V = LinearMap mod mod      -- Linear maps from vectors to vectors.
   
   -- Equivalent vector generator.
   lmToVec : V⊸S → V
   lmToVec lm = vgen (LinearMap.f lm) basisSet
 
-  -- Linear maps from vectors to vectors.
-  -- V⊸V = LinearMap mod mod
-  V⊸V = List V⊸S
+  -- V⊸V = List V⊸S
   -- ToDo: How to generate `List V⊸S` from `LinearMap mod mod`?
+  -- T(x) = y; express `x` in terms of basisSet and make use of linearity.
+  -- (May require transposition.)
+  --
+  -- f : V → V; f linear.
+  -- f v                                                           =⟨ basisComplete ⟩
+  -- f (vgen (v ∙_) basisSet)                                      =⟨ vgen ⟩
+  -- f (foldr (_+ᴹ_ ∘ vscale (v ∙_)) 0ᴹ basisSet)                  =⟨ vscale ⟩
+  -- f (foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ basisSet) =⟨ ? ⟩
+  -- foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ (map f basisSet) =⟨ ? ⟩
+  -- vgen (v ∙_) (map f basisSet)                                      =⟨ vgen ⟩
+  
+  -- vscale f = uncurry _*ₗ_ ∘ < f , id >
+
+  -- vgen : (V → S) → List V → V
+  -- vgen f = foldr (_+ᴹ_ ∘ vscale f) 0ᴹ
   
   -- Equivalent matrix generator.
-  lmToMat : V⊸V → List V
-  lmToMat []         = []
-  lmToMat (lm ∷ lms) = lmToVec lm ∷ lmToMat lms
+  -- lmToMat : V⊸V → List V
+  -- lmToMat []         = []
+  -- lmToMat (lm ∷ lms) = lmToVec lm ∷ lmToMat lms
 
   open Setoid (≈ᴸ-setoid mod ⟨module⟩) using () renaming
     ( _≈_ to _≈ˢ_
     ; _≉_ to _≉ˢ_
     ) public
   
+------------------------------------------------------------------------
+-- Sized vector space.
+--
+-- A sized vector space provides an indexing function of definite arrity.
+record SizedVectorSpace
+  (n : ℕ)
+  {r ℓr m ℓm   : Level}
+  {ring        : CommutativeRing r ℓr}
+  {mod         : Module ring m ℓm}
+  (vectorSpace : VectorSpace mod)
+  : Set (suc (ℓr ⊔ r ⊔ ℓm ⊔ m)) where
+
+  constructor mk
+  open VectorSpace vectorSpace public
+  field
+    _[_] : V → Fin n → S
+    

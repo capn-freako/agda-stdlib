@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- The Agda standard library
 --
--- Properties of linear maps.
+-- Properties of algebraic morphisms
 ------------------------------------------------------------------------
 
 {-# OPTIONS --without-K --safe #-}
@@ -15,7 +15,9 @@ open import Algebra                   using (CommutativeRing)
 open import Algebra.Module            using (Module)
 open import Algebra.Module.Morphism.Bundles
 open import Axiom.DoubleNegationElimination
+open import Data.List
 open import Data.Product
+open import Function
 open import Level                     using (Level)
 open import Relation.Binary.Reasoning.MultiSetoid
 open import Relation.Nullary          using (¬_)
@@ -123,3 +125,13 @@ module LinearMapProperties
           x A.+ᴹ A.-ᴹ y ≈⟨ x-y≈0 ⟩
           A.0ᴹ          ∎
         )
+
+  -- Linear functions distribute over folded accumulation.
+  f-dist-fold+ : ∀ (g : A → A) (xs : List A) →
+                 f (foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs) B.≈ᴹ foldr (B._+ᴹ_ ∘ f ∘ g) B.0ᴹ xs
+  f-dist-fold+ g []       = 0ᴹ-homo
+  f-dist-fold+ g (x ∷ xs) = begin⟨ B.≈ᴹ-setoid ⟩
+    f (g x  A.+ᴹ foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs)    ≈⟨ +ᴹ-homo (g x) (foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs) ⟩
+    f (g x) B.+ᴹ f (foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs) ≈⟨ B.+ᴹ-congˡ (f-dist-fold+ g xs) ⟩
+    f (g x) B.+ᴹ foldr (B._+ᴹ_ ∘ f ∘ g) B.0ᴹ xs ∎
+  
