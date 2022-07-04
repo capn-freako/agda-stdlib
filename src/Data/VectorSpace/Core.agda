@@ -24,13 +24,6 @@ open import Relation.Binary
 open import Relation.Binary.ExtensionalEquivalence
 open import Relation.Binary.Reasoning.MultiSetoid
 
-private
-  variable
-    a b c : Level
-    A : Set a
-    B : Set b
-    C : Set c
-
 ------------------------------------------------------------------------
 -- Abstract vector space.
 --
@@ -44,19 +37,19 @@ record VectorSpace
   
   constructor mkVS
 
-  open CommutativeRing ring renaming (Carrier  to S)   public
+  open CommutativeRing ring renaming (Carrier  to A)   public
   open Module          mod  renaming (Carrierᴹ to V)   public
   open MorphismStructures.ModuleMorphisms mod ⟨module⟩ public
 
-  vscale : (V → S) → V → V
+  vscale : (V → A) → V → V
   vscale f = uncurry _*ₗ_ ∘ < f , id >
 
-  vgen : (V → S) → List V → V
+  vgen : (V → A) → List V → V
   vgen f = foldr (_+ᴹ_ ∘ vscale f) 0ᴹ
   
   infix 7 _∙_
   field
-    _∙_           : V → V → S
+    _∙_           : V → V → A
     -- ToDo: `List` => `Foldable Functor`.
     basisSet      : List V
     basisComplete : ∀ {a : V} →
@@ -84,24 +77,23 @@ record VectorSpace
     f y *ₗ y   ≡⟨⟩
     vscale f y ∎
 
-  V⊸S = LinearMap mod ⟨module⟩ -- Linear maps from vectors to scalars.
-  V⊸V = LinearMap mod mod      -- Linear maps from vectors to vectors.
+  V⊸A = LinearMap mod ⟨module⟩ -- Linear maps from vectors to scalars.
   
   -- Equivalent vector generator.
-  lmToVec : V⊸S → V
+  lmToVec : V⊸A → V
   lmToVec lm = vgen (LinearMap.f lm) basisSet
 
   -- ToDo: equivalent matrix generator? How to even define the type?
   -- lmToMat : V⊸V → ?
   -- Maybe change type of `V⊸V` to:
-  -- V⊸V = List V⊸S
+  -- V⊸V = List V⊸A
   -- And then:
   -- -- Equivalent matrix generator.
   -- lmToMat : V⊸V → List V
   -- lmToMat []         = []
   -- lmToMat (lm ∷ lms) = lmToVec lm ∷ lmToMat lms
 
-  -- ToDo: How to generate `List V⊸S` from `LinearMap mod mod`?
+  -- ToDo: How to generate `List V⊸A` from `LinearMap mod mod`?
   -- T(x) = y; express `x` in terms of basisSet and make use of linearity.
   -- (May require transposition.)
   -- f : V → V; f linear.
@@ -110,7 +102,7 @@ record VectorSpace
   -- f (foldr (_+ᴹ_ ∘ vscale (v ∙_)) 0ᴹ basisSet)                      =⟨ vscale ⟩
   -- f (foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ basisSet)     =⟨ ? ⟩
   -- foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ (map f basisSet) =⟨ ? ⟩
-  -- vgen (v ∙_) (map f basisSet)                                      =⟨ vgen ⟩
+  -- vgen (v ∙_) (map f basisSet)                                      ∎
   
   open Setoid (≈ᴸ-setoid mod ⟨module⟩) using () renaming
     ( _≈_ to _≈ˢ_
@@ -132,5 +124,5 @@ record SizedVectorSpace
   constructor mk
   open VectorSpace vectorSpace public
   field
-    _[_] : V → Fin n → S
+    _[_] : V → Fin n → A  -- Isomorphic to: `V → Vec n A`.
     
