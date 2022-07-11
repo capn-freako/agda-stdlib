@@ -61,14 +61,24 @@ record VectorSpace
     -- `A → B`; nothing for: `A → A → B`.
     ∙-comm      : ∀ {a b}     → a ∙ b ≈ b ∙ a
     ∙-distrib-+ : ∀ {a b c}   → a ∙ (b +ᴹ c)    ≈ (a ∙ b) + (a ∙ c)
+    ∙-distrib-+ʳ : ∀ {a b c}   → (b +ᴹ c) ∙ a   ≈ (b ∙ a) + (c ∙ a)  -- Prove.
     ∙-comm-*ₗ   : ∀ {s} {a b} → a ∙ (s *ₗ b)    ≈ s * (a ∙ b)
+    ∙-comm-*ₗʳ  : ∀ {s} {a b} → (s *ₗ b) ∙ a    ≈ s * (b ∙ a)  -- Prove.
     ∙-comm-*ᵣ   : ∀ {s} {a b} → a ∙ (b *ᵣ s)    ≈ (a ∙ b) * s  -- Prove.
+    ∙-comm-*ᵣʳ  : ∀ {s} {a b} → (b *ᵣ s) ∙ a    ≈ s * (b ∙ a)  -- Prove.
     ∙-congˡ     : ∀ {a b c}   → b ≈ᴹ c → a ∙ b ≈ a ∙ c
     ∙-congʳ     : ∀ {a b c}   → b ≈ᴹ c → b ∙ a ≈ c ∙ a        -- Prove.
     ∙-idˡ       : ∀ {a}       → 0ᴹ ∙ a ≈ 0#
     ∙-idʳ       : ∀ {a}       → a ∙ 0ᴹ ≈ 0#                    -- Prove.
     ∙-homo-⁻¹    : ∀ {a b}     → a ∙ (-ᴹ b) ≈ - (a ∙ b)
-    
+    ∙-homo-⁻¹ˡ   : ∀ {a b}     → (-ᴹ b) ∙ a ≈ - (b ∙ a)         -- Prove.
+
+  ∙-cong : ∀ {a b c d} → a ≈ᴹ c → b ≈ᴹ d → a ∙ b ≈ c ∙ d
+  ∙-cong {a} {b} {c} {d} a≈c b≈d = begin⟨ setoid ⟩
+    a ∙ b ≈⟨ ∙-congˡ b≈d ⟩
+    a ∙ d ≈⟨ ∙-congʳ a≈c ⟩
+    c ∙ d ∎
+  
   vscale-cong : ∀ f → Congruent _≈ᴹ_ _≈_ f → Congruent _≈ᴹ_ _≈ᴹ_ (vscale f)
   vscale-cong f f-cong {x} {y} x≈y = begin⟨ ≈ᴹ-setoid ⟩
     vscale f x ≡⟨⟩
@@ -108,21 +118,3 @@ record VectorSpace
     ( _≈_ to _≈ˢ_
     ; _≉_ to _≉ˢ_
     ) public
-  
-------------------------------------------------------------------------
--- Sized vector space.
---
--- A sized vector space provides an indexing function of definite arrity.
-record SizedVectorSpace
-  (n : ℕ)
-  {r ℓr m ℓm   : Level}
-  {ring        : CommutativeRing r ℓr}
-  {mod         : Module ring m ℓm}
-  (vectorSpace : VectorSpace mod)
-  : Set (suc (ℓr ⊔ r ⊔ ℓm ⊔ m)) where
-
-  constructor mk
-  open VectorSpace vectorSpace public
-  field
-    _[_] : V → Fin n → A  -- Isomorphic to: `V → Vec n A`.
-    
