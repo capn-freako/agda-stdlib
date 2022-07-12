@@ -978,6 +978,16 @@ New modules
   Relation.Binary.ExtensionalEquivalence
   ```
 
+* Denotation for `Data.Vec` in terms of `Data.VectorSpace`:
+  ```
+  Data.Vec.Denotation
+  ```
+
+* `Vec` properties on equivalence:
+  ```
+  Data.Vec.Properties.Equivalence
+  ```
+
 Other minor changes
 -------------------
 
@@ -1783,6 +1793,27 @@ Congruent₂′ f = ∀ {x y w z} → x ≈₁ y → w ≈₂ z → f x w ≈₁
           Congruent ≈₁ ≈₁ f → Congruent₂ ≈₁ ≈₁ ≈₂ g → Congruent₂ ≈₁ ≈₁ ≈₂ (g ∘ f)
 flip-cong₂ : ∀ {f} → Congruent₂ ≈₁ ≈₁ ≈₂ f → Congruent₂ ≈₁ ≈₁ ≈₂ (flip f)
 ```
+
+* Added new proof in `Algebra.Module.Morphism.Properties`:
+  ```
+  f-dist-fold+ : ∀ (g : A → A) (xs : List A) →
+                 f (foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs) B.≈ᴹ foldr (B._+ᴹ_ ∘ f ∘ g) B.0ᴹ xs
+  ```
+
+* Added `Module` instance for `Data.Vec` in `Data.Vec.Instances`:
+  ```
+  vecAsModule : (n : ℕ) → Module ring r (r ⊔ ℓr)
+  ```
+
+* Changes to `Data.VectorSpace.Core`:
+  ```
+  - Changed underlying ring type name from "S" to "A".
+  - Converted some redundant fields of `VectorSpace` record to proofs.
+  V⊸A = LinearMap mod ⟨module⟩ -- Linear maps from vectors to scalars.
+  lmToVec : V⊸A → V
+  _≈ᴸ_ ↦ _≈ˢ_
+  _≉ᴸ_ ↦ _≉ˢ_
+  ```
 
 NonZero/Positive/Negative changes
 ---------------------------------
