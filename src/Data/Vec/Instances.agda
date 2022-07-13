@@ -44,7 +44,7 @@ module _
   open CommutativeRing ring hiding (ring) renaming (Carrier to R)
   open VecEquiv  setoid
   open VecSetoid setoid
-  
+
   vecAsModule : (n : ℕ) → Module ring r (r ⊔ ℓr)
   vecAsModule n = record
     { Carrierᴹ = Vec R n

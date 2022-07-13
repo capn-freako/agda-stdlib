@@ -29,12 +29,24 @@ open import Relation.Binary.Reasoning.MultiSetoid
 --
 -- A "vector space" is a `Module` with a commutative, homomorphic inner
 -- product and a complete set of building blocks for mapping the space.
+--
+-- "Why not just use `Data.Vec`?"
+--
+-- Because `Data.Vec` locks us into an _array_ representation/implementation,
+-- which isn't always the best when trying to avail one's self of the
+-- myriad options now available for massively parallel computation
+-- acceleration in hardware (i.e. - silicon).
+--
+-- "Okay; so, then, why not just invent a brand new data type?"
+--
+-- Because people are used to working with "vectors", and we don't want
+-- to rock their World too much ... yet. ;-)
 record VectorSpace
   {r ℓr m ℓm : Level}
   {ring      : CommutativeRing r ℓr}
   (mod       : Module ring m ℓm)
   : Set (suc (ℓr ⊔ r ⊔ ℓm ⊔ m)) where
-  
+
   constructor mkVS
 
   open CommutativeRing ring renaming (Carrier  to A)   public
@@ -67,14 +79,13 @@ record VectorSpace
     ∙-idˡ       : ∀ {a}       → 0ᴹ ∙ a ≈ 0#
     ∙-homo-⁻¹    : ∀ {a b}     → a ∙ (-ᴹ b) ≈ - (a ∙ b)
 
-<<<<<<< HEAD
   ∙-distrib-+ʳ : ∀ {a b c} → (b +ᴹ c) ∙ a ≈ (b ∙ a) + (c ∙ a)
   ∙-distrib-+ʳ {a} {b} {c} = begin⟨ setoid ⟩
     (b +ᴹ c) ∙ a      ≈⟨ ∙-comm ⟩
     a ∙ (b +ᴹ c)      ≈⟨ ∙-distrib-+ ⟩
     (a ∙ b) + (a ∙ c) ≈⟨ +-cong ∙-comm ∙-comm ⟩
     (b ∙ a) + (c ∙ a) ∎
-    
+
   ∙-comm-*ₗʳ : ∀ {s} {a b} → (s *ₗ b) ∙ a ≈ s * (b ∙ a)
   ∙-comm-*ₗʳ {s} {a} {b} = begin⟨ setoid ⟩
     (s *ₗ b) ∙ a ≈⟨ ∙-comm ⟩
@@ -102,7 +113,7 @@ record VectorSpace
     a ∙ b ≈⟨ ∙-congˡ b≈d ⟩
     a ∙ d ≈⟨ ∙-congʳ a≈c ⟩
     c ∙ d ∎
-  
+
   ∙-idʳ : ∀ {a} → a ∙ 0ᴹ ≈ 0#
   ∙-idʳ {a} = begin⟨ setoid ⟩
     a ∙ 0ᴹ ≈⟨ ∙-comm ⟩
@@ -116,8 +127,6 @@ record VectorSpace
     - (a ∙ b)  ≈⟨ -‿cong ∙-comm ⟩
     - (b ∙ a)  ∎
 
-=======
->>>>>>> vector-space
   vscale-cong : ∀ f → Congruent _≈ᴹ_ _≈_ f → Congruent _≈ᴹ_ _≈ᴹ_ (vscale f)
   vscale-cong f f-cong {x} {y} x≈y = begin⟨ ≈ᴹ-setoid ⟩
     vscale f x ≡⟨⟩
@@ -126,15 +135,8 @@ record VectorSpace
     f y *ₗ y   ≡⟨⟩
     vscale f y ∎
 
-<<<<<<< HEAD
   V⊸A = LinearMap mod ⟨module⟩ -- Linear maps from vectors to scalars.
-  
-=======
-  ------------------------------------------------------------------------
-  -- Linear maps from vectors to scalars.
-  V⊸S = LinearMap mod ⟨module⟩
 
->>>>>>> vector-space
   -- Equivalent vector generator.
   lmToVec : V⊸A → V
   lmToVec lm = vgen (LinearMap.f lm) basisSet
@@ -159,7 +161,7 @@ record VectorSpace
   -- f (foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ basisSet)     =⟨ ? ⟩
   -- foldr (_+ᴹ_ ∘ uncurry _*ₗ_ ∘ < (v ∙_) , id >) 0ᴹ (map f basisSet) =⟨ ? ⟩
   -- vgen (v ∙_) (map f basisSet)                                      ∎
-  
+
   open Setoid (≈ᴸ-setoid mod ⟨module⟩) using () renaming
     ( _≈_ to _≈ˢ_
     ; _≉_ to _≉ˢ_

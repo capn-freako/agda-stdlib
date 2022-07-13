@@ -1,7 +1,15 @@
 ------------------------------------------------------------------------
 -- The Agda standard library
 --
--- Properties of vector spaces.
+-- Properties of abstract vector spaces.
+--
+-- Note: A quick `git grep ...` will reveal that nothing imports this
+--       module. However, the proved isomorphism at the end of this file
+--       served as the goal when creating `Data.VectorSpace` originally.
+--       Furthermore, that isomorphism, as well as several of the
+--       properties contained herein, are quite likely to be useful in
+--       future work involving abstract vector spaces and linear mappings
+--       between them.
 ------------------------------------------------------------------------
 
 {-# OPTIONS --without-K --safe #-}
@@ -37,13 +45,13 @@ open ExtEq       setoid
 private
   variable
     a b c : Level
-    A : Set a
+    -- A : Set a
     B : Set b
     C : Set c
 
 ------------------------------------------------------------------------
 -- Some consequences of certain `VectorSpace` property fields.
-v∙g[x]+y-cong₂ : {g : V → V} {v x w : V} {y z : S} →
+v∙g[x]+y-cong₂ : {g : V → V} {v x w : V} {y z : A} →
                  Congruent _≈ᴹ_ _≈ᴹ_ g → x ≈ᴹ w → y ≈ z →
                  v ∙ g x + y ≈ v ∙ g w + z
 v∙g[x]+y-cong₂ {g} {v} {x} {w} {y} {z} g-cong x≈w y≈z = begin⟨ setoid ⟩
@@ -51,7 +59,7 @@ v∙g[x]+y-cong₂ {g} {v} {x} {w} {y} {z} g-cong x≈w y≈z = begin⟨ setoid 
   v ∙ g w + y ≈⟨ +-congˡ y≈z ⟩
   v ∙ g w + z ∎
 
-foldr-cong : ∀ {f g : V → S → S} {d e : S} →
+foldr-cong : ∀ {f g : V → A → A} {d e : A} →
              (∀ {y z} → y ≈ z → ∀ x → f x y ≈ g x z) → d ≈ e →
              foldr f d ≗ foldr g e
 foldr-cong f≈g d≈e []       = d≈e
@@ -75,10 +83,10 @@ module _ (lm : LinearMap mod ⟨module⟩) where
   open LinearMap lm
   open MorphismProperties.LinearMapProperties lm
 
-  vred : (V → S) → List V → S
+  vred : (V → A) → List V → A
   vred g = foldr (_+_ ∘ uncurry _*_ ∘ < g , f >) 0#
 
-  foldr-homo : (g : V → S) → (xs : List V) → f (vgen g xs) ≈ vred g xs
+  foldr-homo : (g : V → A) → (xs : List V) → f (vgen g xs) ≈ vred g xs
   foldr-homo g []       = 0ᴹ-homo
   foldr-homo g (x ∷ xs) = begin⟨ setoid ⟩
     f (h x (foldr h 0ᴹ xs))
@@ -101,7 +109,7 @@ module _ (lm : LinearMap mod ⟨module⟩) where
   fGen : List V → V
   fGen = vgen f
 
-  f≈v∙ : ∀ {a} → f a ≈ v lm ∙ a
+  f≈v∙ : ∀ {a} → f a ≈ lmToVec lm ∙ a
   f≈v∙ {a} = sym (begin⟨ setoid ⟩
     v′ ∙ a ≈⟨ ∙-comm ⟩
     a ∙ v′ ≈⟨ foldr-homo-∙ (vscale-cong f ⟦⟧-cong) basisSet ⟩
@@ -119,16 +127,16 @@ module _ (lm : LinearMap mod ⟨module⟩) where
       ≈⟨ ⟦⟧-cong (Setoid.sym ≈ᴹ-setoid (basisComplete)) ⟩
     f a ∎)
     where
-    v′ = v lm
+    v′ = lmToVec lm
 
   -- Inner product extensional equivalence.
   x·z≈y·z⇒x≈y : ∀ {x y} → DoubleNegationElimination ℓm →
-                 Σ[ (s , z) ∈ S × V ]
+                 Σ[ (s , z) ∈ A × V ]
                    ((s *ₗ (x +ᴹ -ᴹ y) ≈ᴹ z) × (f z ≉ 0#)) →
                  (∀ {z} → x ∙ z ≈ y ∙ z) → x ≈ᴹ y
   x·z≈y·z⇒x≈y {x} {y} dne Σ[z]fz≉𝟘 x∙z≈y∙z = fx≈fy⇒x≈y {dne} Σ[z]fz≉𝟘 fx≈fy
     where
-    v′ = v lm
+    v′ = lmToVec lm
     fx≈fy : f x ≈ f y
     fx≈fy = begin⟨ setoid ⟩
       f x   ≈⟨ f≈v∙ {x} ⟩
@@ -165,10 +173,10 @@ vgen-cong {f₁} {f₂} (x ∷ xs) f₁≗f₂ = begin⟨ ≈ᴹ-setoid ⟩
   f₂ x *ₗ x +ᴹ vgen f₁ xs ≈⟨ +ᴹ-congˡ (vgen-cong xs f₁≗f₂) ⟩
   f₂ x *ₗ x +ᴹ vgen f₂ xs ∎
 
--- Isomorphism 1: (V ⊸ S) ↔ V
-V⊸S↔V : Inverse (≈ᴸ-setoid mod ⟨module⟩) ≈ᴹ-setoid
-V⊸S↔V = record
-  { to        = v
+-- Isomorphism 1: (V ⊸ A) ↔ V
+V⊸A↔V : Inverse (≈ᴸ-setoid mod ⟨module⟩) ≈ᴹ-setoid
+V⊸A↔V = record
+  { to        = lmToVec
   ; from      = λ u  → mkLM (u ∙_) u∙-homo
   ; to-cong   = vgen-cong basisSet
   ; from-cong = λ z x → ∙-congʳ z
@@ -177,6 +185,6 @@ V⊸S↔V = record
                        ≈⟨ Setoid.sym ≈ᴹ-setoid basisComplete ⟩
                      v ∎ )
                 , λ lm x → begin⟨ setoid ⟩
-                      v lm ∙ x ≈⟨ sym (f≈v∙ lm) ⟩
+                      lmToVec lm ∙ x ≈⟨ sym (f≈v∙ lm) ⟩
                       LinearMap.f lm x   ∎
   }

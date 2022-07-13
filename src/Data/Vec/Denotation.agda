@@ -33,7 +33,7 @@ module Matrix
   m n : ℕ
   m = suc m′
   n = suc n′
-  
+
   open CommutativeRing ring using (setoid; _≈_; _+_; 0#; _*_)
   open VecSetoid     (CommutativeRing.setoid ring) using
     ( _≋_; ≋-isEquivalence; ≋-refl; ≋-sym; ≋-setoid )
@@ -47,7 +47,7 @@ module Matrix
   open VecEq setoid
   open VecEq     A.≈ᴹ-setoid using () renaming (lookup-cong to lookup-cong′)
   open VecSetoid A.≈ᴹ-setoid using () renaming (≋-refl to ≋ᴹ-refl)
-  
+
   private
     variable
       m′′ : ℕ
@@ -55,7 +55,7 @@ module Matrix
   ----------------------------------------------------------------------
   -- Helpers are required for inductive record field functions, because
   -- we can't call them recursively from within their definitions.
-        
+
   -- Converts matrix into function between vectors.
   g : Vec (Vec A n) (suc m′′) → Vec A n → Vec A (suc m′′)
   g mat v = tabulate ((v A.∙_) ∘ (lookup mat))
@@ -73,13 +73,13 @@ module Matrix
   g-homo {m′′ = zero} = A.∙-distrib-+ʳ Pointwise.∷ Pointwise.[]
   g-homo {m′′ = suc m′′} {mat = mhead ∷ mtail} =
     A.∙-distrib-+ʳ Pointwise.∷ g-homo {mat = mtail}
-    
+
   g-ε-homo : ∀ {mat : Vec (Vec A n) (suc m′′)} →
              g mat (replicate {n = n} 0#) ≋ replicate {n = (suc m′′)} 0#
   g-ε-homo {m′′ = zero} = A.∙-idˡ Pointwise.∷ Pointwise.[]
   g-ε-homo {m′′ = suc m′′} {mat = mhead ∷ mtail} =
     A.∙-idˡ Pointwise.∷ g-ε-homo {mat = mtail}
-    
+
   g-⁻¹-homo : ∀ {v} {mat : Vec (Vec A n) (suc m′′)} →
              g mat (A.-ᴹ v) ≋ map B.-_ (g mat v)
   g-⁻¹-homo {m′′ = zero} = A.∙-homo-⁻¹ˡ Pointwise.∷ Pointwise.[]

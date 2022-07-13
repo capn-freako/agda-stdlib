@@ -134,4 +134,4 @@ module LinearMapProperties
     f (g x  A.+ᴹ foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs)    ≈⟨ +ᴹ-homo (g x) (foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs) ⟩
     f (g x) B.+ᴹ f (foldr (A._+ᴹ_ ∘ g) A.0ᴹ xs) ≈⟨ B.+ᴹ-congˡ (f-dist-fold+ g xs) ⟩
     f (g x) B.+ᴹ foldr (B._+ᴹ_ ∘ f ∘ g) B.0ᴹ xs ∎
-  
+

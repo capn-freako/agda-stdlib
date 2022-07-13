@@ -29,7 +29,7 @@ open import Relation.Binary.Reasoning.Setoid       setoid
 private
   variable
     m n : ℕ
-    
+
 ∷-cong₂ : ∀ {x y} {xs ys : Vec A n} → x ≈ y → xs ≋ ys → x ∷ xs ≋ y ∷ ys
 ∷-cong₂ {xs = []} {ys = []} x≈y _                     = x≈y PW.∷ PW.[]
 ∷-cong₂ {xs = x₁ ∷ []} {ys = y₁ ∷ []} x≈y xs≈ys        =
@@ -61,7 +61,7 @@ module _ {f : A → A} where
   map-cong₁ f-cong {[]}     {[]}     xs≋ys = xs≋ys
   map-cong₁ f-cong {x ∷ xs} {y ∷ ys} xs≋ys =
     ∷-cong₂ (f-cong (PW.head xs≋ys)) (map-cong₁ f-cong (PW.tail xs≋ys))
-  
+
 module _ {f : A → A → A} where
 
   zipWith-cong₂ : Congruent₂ _≈_ f → Congruent₂ (_≋_ {n}) (zipWith f)
@@ -73,7 +73,7 @@ module _ {f : A → A → A} where
     xs≋ys = PW.tail x∷xs≋y∷ys
     u≈v   = PW.head u∷us≋v∷vs
     us≋vs = PW.tail u∷us≋v∷vs
-  
+
   zipWith-assoc′ : Associative _≈_ f → Associative _≋_ (zipWith {n = n} f)
   zipWith-assoc′ assoc []       []       []       = ≋-refl
   zipWith-assoc′ assoc (x ∷ xs) (y ∷ ys) (z ∷ zs) =
@@ -103,7 +103,7 @@ module _ {f : A → A → A} where
     f y (f x z) ≈⟨ sym (f-assoc y x z) ⟩
     f (f y x) z ≈⟨ f-cong (f-comm y x) refl ⟩
     f (f x y) z ∎
-           
+
   assoc′′ : ∀ {x y z} →
            Associative _≈_ f → Commutative _≈_ f → Congruent₂ _≈_ f →
            f y (f x z) ≈ f x (f y z)
@@ -111,14 +111,14 @@ module _ {f : A → A → A} where
     f y (f x z) ≈⟨ assoc′ f-assoc f-comm f-cong ⟩
     f (f x y) z ≈⟨ f-assoc x y z ⟩
     f x (f y z) ∎
-           
+
   map-assoc′ : ∀ {x y} {xs : Vec A n} →
               Associative _≈_ f → Commutative _≈_ f → Congruent₂ _≈_ f →
               map (f y) (map (f x) xs) ≋ map (f  (f x y)) xs
   map-assoc′ {.zero}      {x} {y} {[]}     f-assoc f-comm f-cong = ≋-refl
   map-assoc′ {.(ℕ.suc _)} {x} {y} {x₁ ∷ xs} f-assoc f-comm f-cong =
     ∷-cong₂ (assoc′ f-assoc f-comm f-cong) (map-assoc′ f-assoc f-comm f-cong)
-  
+
   map-assoc′′ : ∀ {x y} {xs : Vec A n} →
               Associative _≈_ f → Commutative _≈_ f → Congruent₂ _≈_ f →
               map (f y) (map (f x) xs) ≋ map (f x) (map (f y) xs)
@@ -146,17 +146,17 @@ module _ {f : A → A → A} {ε : A} where
              map (f ε) xs ≋ replicate ε
   map-zeroˡ {.zero}      {[]}     f-zeroˡ = ≋-refl
   map-zeroˡ {.(ℕ.suc _)} {x ∷ xs} f-zeroˡ = ∷-cong₂ (f-zeroˡ x) (map-zeroˡ f-zeroˡ)
-  
+
   map-zeroʳ : {x : A} → RightZero _≈_ ε f →
              map (f x) (replicate {n = n} ε) ≋ replicate ε
   map-zeroʳ {zero}        f-zeroʳ = ≋-refl
   map-zeroʳ {ℕ.suc n} {x} f-zeroʳ = ∷-cong₂ (f-zeroʳ x) (map-zeroʳ f-zeroʳ)
-  
+
   map-identity : {xs : Vec A n} → LeftIdentity _≈_ ε f →
              map (f ε) xs ≋ xs
   map-identity {.zero}      {[]}     f-identity = ≋-refl
   map-identity {.(ℕ.suc _)} {x ∷ xs} f-identity = ∷-cong₂ (f-identity x) (map-identity f-identity)
-  
+
 module _ {_⊕_ : A → A → A} {_⊛_ : A → A → A} where
 
   map-distribʳ : ∀ {x y} {xs : Vec A n} → (_DistributesOverʳ_ _≈_) _⊛_ _⊕_ →
@@ -179,13 +179,13 @@ module _ {_⊕_ : A → A → A} {⊝_ : A → A} {ε : A} where
   zipWith-inverseˡ {.zero}      {[]}     ≈-inv = ≋-refl
   zipWith-inverseˡ {.(ℕ.suc _)} {x ∷ xs} ≈-inv =
     ∷-cong₂ (≈-inv x) (zipWith-inverseˡ ≈-inv)
-                    
+
   zipWith-inverseʳ : {xs : Vec A n} → RightInverse _≈_ ε ⊝_ _⊕_ →
                     zipWith _⊕_ xs (map ⊝_ xs) ≋ replicate {n = n} ε
   zipWith-inverseʳ {.zero}      {[]}     ≈-inv = ≋-refl
   zipWith-inverseʳ {.(ℕ.suc _)} {x ∷ xs} ≈-inv =
     ∷-cong₂ (≈-inv x) (zipWith-inverseʳ ≈-inv)
-                    
+
   map-inverse : Inverse _≈_ ε ⊝_ _⊕_ →
                 Inverse (_≋_ {n}) (replicate ε) (map ⊝_) (zipWith _⊕_)
   map-inverse {zero}    ≈-inv = (λ { [] → ≋-refl })
