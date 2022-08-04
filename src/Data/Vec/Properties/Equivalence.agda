@@ -23,8 +23,9 @@ open import Data.Fin
 open import Data.Nat
 open import Data.Vec
 open import Data.Vec.Relation.Binary.Pointwise.Inductive as PW using ()
-open import Relation.Binary.ExtensionalEquivalence setoid
-open import Relation.Binary.Reasoning.Setoid       setoid
+-- open import Relation.Binary.ExtensionalEquivalence setoid
+open import Function.Relation.Binary.Equality         setoid
+open import Relation.Binary.Reasoning.Setoid          setoid
 
 private
   variable

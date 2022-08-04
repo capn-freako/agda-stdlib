@@ -9,7 +9,9 @@
 module Data.Vec.Denotation where
 
 open import Algebra             using (CommutativeRing)
+open import Algebra.Linear.Bundles
 open import Algebra.Module.Morphism.Bundles
+open import Algebra.Module.Morphism.Structures
 open import Data.Nat.Base       hiding (_⊔_; _+_; _*_)
 open import Data.Vec.Base
 import      Data.Vec.Functional.Relation.Binary.Equality.Setoid as VecFuncSetoid
@@ -18,7 +20,6 @@ import      Data.Vec.Properties.Equivalence                     as VecEq
 import      Data.Vec.Relation.Binary.Equality.Setoid            as VecSetoid
 open import Data.Vec.Relation.Binary.Pointwise.Inductive        as PW
   using (Pointwise)
-open import Data.VectorSpace.Core
 open import Function            using (_∘_)
 open import Level               using (Level)
 
@@ -41,9 +42,9 @@ module Matrix
   open import Relation.Binary.Reasoning.Setoid (≋-setoid m)
 
   module A = VectorSpace vsA
-  open A using (A)
+  open A using () renaming (S to A)
   module B = VectorSpace vsB
-  open B using () renaming (A to B)
+  open B using () renaming (S to B)
   open VecEq setoid
   open VecEq     A.≈ᴹ-setoid using () renaming (lookup-cong to lookup-cong′)
   open VecSetoid A.≈ᴹ-setoid using () renaming (≋-refl to ≋ᴹ-refl)
